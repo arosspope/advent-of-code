@@ -12,3 +12,4 @@ description = "Solutions (in rust) to advent of code."
 [dependencies]
 aoc-runner = "0.2.0"
 aoc-runner-derive = "0.2.0"
+regex = "1"

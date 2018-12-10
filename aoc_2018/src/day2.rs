@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 #[aoc(day2, part1)]
-pub fn part1(input: &str) -> u32 {
+pub fn part1(input: &str) -> usize {
     let (mut twos, mut threes) = (0, 0);
 
     for id in input.lines() {
