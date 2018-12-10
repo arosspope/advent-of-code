@@ -2,11 +2,12 @@
 name = "aoc_2018"
 version = "0.0.1"
 authors = ["arosspope <andrew.pope456@gmail.com>"]
-edition = "2015"
+edition = "2018"
 license = "MIT/Apache-2.0"
 readme = "README.md"
 keywords = ["advent-of-code", "problem-solving"]
 repository = "https://github.com/arosspope/advent-of-code.git"
+description = "Solutions (in rust) to advent of code."
 
 [dependencies]
 aoc-runner = "0.2.0"
