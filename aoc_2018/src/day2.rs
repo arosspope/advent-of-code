@@ -26,9 +26,28 @@ pub fn part1(input: &str) -> u32 {
 
 #[aoc(day2, part2)]
 pub fn part2(input: &str) -> String {
-    String::from("test")
-}
+    for (pos, id1) in input.lines().enumerate() {
+        // For each id, search through the rest of the list for similarity
+        for id2 in input.lines().skip(pos) {
+            let num_different_chars = id1
+                .chars()
+                .zip(id2.chars())
+                .filter(|(c1, c2)| c1 != c2)
+                .count();
 
+            if num_different_chars == 1 {
+                return id1
+                    .chars()
+                    .zip(id2.chars())
+                    .filter(|(c1, c2)| c1 == c2)
+                    .map(|(c, _)| c)
+                    .collect();
+            }
+        }
+    }
+
+    unreachable!()
+}
 
 #[cfg(test)]
 mod tests {
