@@ -1,4 +1,4 @@
-//Day1: Chronal Calibration
+//Day 1: Chronal Calibration
 use std::collections::HashSet;
 
 #[aoc_generator(day1)]
@@ -32,10 +32,10 @@ mod tests {
     use super::part2;
 
     #[test]
-   fn sample1() {
-       assert_eq!(part2(&vec![1, -1]), 0);
-       assert_eq!(part2(&vec![3, 3, 4, -2, -4]), 10);
-       assert_eq!(part2(&vec![-6, 3, 8, 5, -6]), 5);
-       assert_eq!(part2(&vec![7, 7, -2, -7, -4]), 14);
-   }
+    fn sample1() {
+        assert_eq!(part2(&vec![1, -1]), 0);
+        assert_eq!(part2(&vec![3, 3, 4, -2, -4]), 10);
+        assert_eq!(part2(&vec![-6, 3, 8, 5, -6]), 5);
+        assert_eq!(part2(&vec![7, 7, -2, -7, -4]), 14);
+    }
 }
