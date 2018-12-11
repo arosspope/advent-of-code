@@ -67,8 +67,7 @@ fn order_schedule(schedule: &[GuardEvent]) -> HashMap<usize, Vec<GuardEvent>> {
         }
 
         if let Some(id) = current_guard {
-            let guard_entry = mapped_schedule.entry(id).or_insert(Vec::new());
-            guard_entry.push(record.clone());
+            mapped_schedule.entry(id).or_insert(Vec::new()).push(record.clone());
         }
     }
     mapped_schedule
@@ -109,7 +108,8 @@ fn sleepiest_guard(schedule: &HashMap<usize, Vec<GuardEvent>>) -> (usize, Durati
 
 // Given a guard's schedule, find the minute of the day where he is asleep the most
 //
-fn sleepiest_minute(schedule: &[GuardEvent]) -> usize {
+// Returns: (the minute, and frequency)
+fn sleepiest_minute(schedule: &[GuardEvent]) -> Option<(usize, usize)> {
     let mut sleep_start: Option<usize> = None;
     let mut counter = HashMap::new();
 
@@ -119,8 +119,7 @@ fn sleepiest_minute(schedule: &[GuardEvent]) -> usize {
             EventType::Awake => {
                 if let Some(start) = sleep_start {
                     for i in start..record.dt.minute() as usize {
-                        let minute = counter.entry(i).or_insert(0);
-                        *minute += 1;
+                        *counter.entry(i).or_insert(0) += 1;
                     }
                     sleep_start = None;
                 }
@@ -129,7 +128,11 @@ fn sleepiest_minute(schedule: &[GuardEvent]) -> usize {
         }
     }
 
-    counter.into_iter().max_by_key(|&(_, count)| count).map(|(val, _)| val).unwrap()
+    if let Some(sleepiest_minute) = counter.iter().max_by_key(|&(_, count)| count).map(|(val, _)| val) {
+        return Some((*sleepiest_minute, *counter.get(&sleepiest_minute).unwrap()));
+    }
+
+    None
 }
 
 #[aoc(day4, part1)]
@@ -137,7 +140,28 @@ pub fn part1(input: &[GuardEvent]) -> usize {
     let schedule = order_schedule(input);
     let (guard, _) = sleepiest_guard(&schedule);
 
-    guard * sleepiest_minute(&schedule.get(&guard).unwrap())
+    guard * sleepiest_minute(&schedule.get(&guard).unwrap()).unwrap().0
+}
+
+#[aoc(day4, part2)]
+pub fn part2(input: &[GuardEvent]) -> usize {
+    let schedule = order_schedule(input);
+
+    let mut freq_guard: Option<usize> = None;
+    let mut minute: Option<usize> = None;
+    let mut max_freq = 0;
+
+    for (guard, patterns) in schedule {
+        if let Some((min, frequency)) = sleepiest_minute(&patterns) {
+            if frequency > max_freq {
+                max_freq = frequency;
+                minute = Some(min);
+                freq_guard = Some(guard);
+            }
+        }
+    }
+
+    freq_guard.unwrap() * minute.unwrap()
 }
 
 #[cfg(test)]
@@ -245,10 +269,10 @@ mod tests {
     fn sleepy(){
         let schedule = order_schedule(&input_schedule(TEST_STR));
         let (guard, time_asleep) = sleepiest_guard(&schedule);
-        let minute = sleepiest_minute(&schedule.get(&guard).unwrap());
+        let (minute, freq) = sleepiest_minute(&schedule.get(&guard).unwrap()).unwrap();
 
         assert_eq!((guard, time_asleep), (10, Duration::minutes(50)));
-        assert_eq!(minute, 24);
+        assert_eq!((minute, freq), (24, 2));
     }
 
     #[test]
@@ -256,6 +280,14 @@ mod tests {
         assert_eq!(
             part1(&input_schedule(TEST_STR)),
             240
+        )
+    }
+
+    #[test]
+    fn sample2(){
+        assert_eq!(
+            part2(&input_schedule(TEST_STR)),
+            4455
         )
     }
 }
