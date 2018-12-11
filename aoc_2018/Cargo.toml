@@ -2,7 +2,7 @@
 name = "aoc_2018"
 version = "0.0.1"
 authors = ["arosspope <andrew.pope456@gmail.com>"]
-edition = "2018"
+edition = "2015"
 license = "MIT/Apache-2.0"
 readme = "README.md"
 keywords = ["advent-of-code", "problem-solving"]
@@ -13,3 +13,5 @@ description = "Solutions (in rust) to advent of code."
 aoc-runner = "0.2.0"
 aoc-runner-derive = "0.2.0"
 regex = "1"
+chrono = "0.4"
+time = "0.1"

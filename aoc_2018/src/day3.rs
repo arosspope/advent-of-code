@@ -1,6 +1,8 @@
 //Day 3: No Matter How You Slice It
+extern crate regex;
+
 use std::collections::HashMap;
-use regex::Regex;
+use day3::regex::Regex;
 
 #[derive(Debug, PartialEq)]
 pub struct Claim {
@@ -23,7 +25,6 @@ fn resolve_occupancy(claim: &Claim) -> Vec<(usize, usize)> {
     occupancy
 }
 
-
 // Build a hashmap listing the number of overlaps at a specific position
 //
 fn build_fabric_grid(claims: &[Claim]) -> HashMap<(usize, usize), usize> {
@@ -32,7 +33,7 @@ fn build_fabric_grid(claims: &[Claim]) -> HashMap<(usize, usize), usize> {
     for claim in claims {
         for (x, y) in resolve_occupancy(claim) {
             let position = grid.entry((x, y)).or_insert(0);
-            *position +=1;
+            *position += 1;
         }
     }
 
@@ -65,7 +66,10 @@ pub fn input_claims(input: &str) -> Vec<Claim> {
 
 #[aoc(day3, part1)]
 pub fn part1(input: &[Claim]) -> usize {
-    build_fabric_grid(input).iter().filter(|(_, &count)| count > 1).count()
+    build_fabric_grid(input)
+        .iter()
+        .filter(|(_, &count)| count > 1)
+        .count()
 }
 
 #[aoc(day3, part2)]
@@ -74,7 +78,10 @@ pub fn part2(input: &[Claim]) -> usize {
 
     for claim in input {
         let occupancy = resolve_occupancy(claim);
-        if occupancy.iter().all(|(x, y)| grid.get(&(*x, *y)).unwrap() == &1) {
+        if occupancy
+            .iter()
+            .all(|(x, y)| grid.get(&(*x, *y)).unwrap() == &1)
+        {
             return claim.id;
         }
     }
@@ -119,12 +126,18 @@ mod tests {
     }
 
     #[test]
-    fn sample1(){
-        assert_eq!(part1(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")), 4);
+    fn sample1() {
+        assert_eq!(
+            part1(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")),
+            4
+        );
     }
 
     #[test]
-    fn sample2(){
-        assert_eq!(part2(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")), 3);
+    fn sample2() {
+        assert_eq!(
+            part2(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")),
+            3
+        );
     }
 }
