@@ -93,6 +93,10 @@ pub fn part2(input: &[Claim]) -> usize {
 mod tests {
     use super::*;
 
+    static TEST_STR: &str = "#1 @ 1,3: 4x4\n\
+                        #2 @ 3,1: 4x4\n\
+                        #3 @ 5,5: 2x2";
+
     #[test]
     fn grok_input() {
         let expected = vec![
@@ -120,7 +124,7 @@ mod tests {
         ];
 
         assert_eq!(
-            input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2"),
+            input_claims(TEST_STR),
             expected
         );
     }
@@ -128,7 +132,7 @@ mod tests {
     #[test]
     fn sample1() {
         assert_eq!(
-            part1(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")),
+            part1(&input_claims(TEST_STR)),
             4
         );
     }
@@ -136,7 +140,7 @@ mod tests {
     #[test]
     fn sample2() {
         assert_eq!(
-            part2(&input_claims("#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2")),
+            part2(&input_claims(TEST_STR)),
             3
         );
     }
