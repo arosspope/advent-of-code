@@ -3,10 +3,10 @@ extern crate chrono;
 extern crate regex;
 extern crate time;
 
-use std::collections::HashMap;
 use day4::chrono::prelude::*;
 use day4::regex::Regex;
 use day4::time::Duration;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventType {
@@ -67,7 +67,10 @@ fn order_schedule(schedule: &[GuardEvent]) -> HashMap<usize, Vec<GuardEvent>> {
         }
 
         if let Some(id) = current_guard {
-            mapped_schedule.entry(id).or_insert(Vec::new()).push(record.clone());
+            mapped_schedule
+                .entry(id)
+                .or_insert_with(Vec::new)
+                .push(record.clone());
         }
     }
     mapped_schedule
@@ -93,7 +96,7 @@ fn sleepiest_guard(schedule: &HashMap<usize, Vec<GuardEvent>>) -> (usize, Durati
                         sleep_start = None;
                     }
                 }
-                _ => continue,  // The guard has started the next day
+                _ => continue, // The guard has started the next day
             }
         }
 
@@ -123,13 +126,17 @@ fn sleepiest_minute(schedule: &[GuardEvent]) -> Option<(usize, usize)> {
                     }
                     sleep_start = None;
                 }
-            },
+            }
             _ => continue,
         }
     }
 
-    if let Some(sleepiest_minute) = counter.iter().max_by_key(|&(_, count)| count).map(|(val, _)| val) {
-        return Some((*sleepiest_minute, *counter.get(&sleepiest_minute).unwrap()));
+    if let Some(sleepiest_minute) = counter
+        .iter()
+        .max_by_key(|&(_, count)| count)
+        .map(|(val, _)| val)
+    {
+        return Some((*sleepiest_minute, counter[&sleepiest_minute]));
     }
 
     None
@@ -140,7 +147,7 @@ pub fn part1(input: &[GuardEvent]) -> usize {
     let schedule = order_schedule(input);
     let (guard, _) = sleepiest_guard(&schedule);
 
-    guard * sleepiest_minute(&schedule.get(&guard).unwrap()).unwrap().0
+    guard * sleepiest_minute(&schedule[&guard]).unwrap().0
 }
 
 #[aoc(day4, part2)]
@@ -169,125 +176,116 @@ mod tests {
     use super::*;
 
     static TEST_STR: &str = "[1518-11-01 00:00] Guard #10 begins shift\n\
-                    [1518-11-01 00:05] falls asleep\n\
-                    [1518-11-01 00:25] wakes up\n\
-                    [1518-11-01 00:30] falls asleep\n\
-                    [1518-11-01 00:55] wakes up\n\
-                    [1518-11-01 23:58] Guard #99 begins shift\n\
-                    [1518-11-02 00:40] falls asleep\n\
-                    [1518-11-02 00:50] wakes up\n\
-                    [1518-11-03 00:05] Guard #10 begins shift\n\
-                    [1518-11-03 00:24] falls asleep\n\
-                    [1518-11-03 00:29] wakes up\n\
-                    [1518-11-04 00:02] Guard #99 begins shift\n\
-                    [1518-11-04 00:36] falls asleep\n\
-                    [1518-11-04 00:46] wakes up\n\
-                    [1518-11-05 00:03] Guard #99 begins shift\n\
-                    [1518-11-05 00:45] falls asleep\n\
-                    [1518-11-05 00:55] wakes up";
+                             [1518-11-01 00:05] falls asleep\n\
+                             [1518-11-01 00:25] wakes up\n\
+                             [1518-11-01 00:30] falls asleep\n\
+                             [1518-11-01 00:55] wakes up\n\
+                             [1518-11-01 23:58] Guard #99 begins shift\n\
+                             [1518-11-02 00:40] falls asleep\n\
+                             [1518-11-02 00:50] wakes up\n\
+                             [1518-11-03 00:05] Guard #10 begins shift\n\
+                             [1518-11-03 00:24] falls asleep\n\
+                             [1518-11-03 00:29] wakes up\n\
+                             [1518-11-04 00:02] Guard #99 begins shift\n\
+                             [1518-11-04 00:36] falls asleep\n\
+                             [1518-11-04 00:46] wakes up\n\
+                             [1518-11-05 00:03] Guard #99 begins shift\n\
+                             [1518-11-05 00:45] falls asleep\n\
+                             [1518-11-05 00:55] wakes up";
 
     #[test]
     fn grok_input() {
         let expected = vec![
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(0, 0, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(0, 0, 0),
                 event: EventType::StartedShift { id: 10 },
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(0, 5, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(0, 5, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(0, 25, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(0, 25, 0),
                 event: EventType::Awake,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(0, 30, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(0, 30, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(0, 55, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(0, 55, 0),
                 event: EventType::Awake,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 01).and_hms(23, 58, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 1).and_hms(23, 58, 0),
                 event: EventType::StartedShift { id: 99 },
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 02).and_hms(0, 40, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 2).and_hms(0, 40, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 02).and_hms(0, 50, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 2).and_hms(0, 50, 0),
                 event: EventType::Awake,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 03).and_hms(0, 5, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 3).and_hms(0, 5, 0),
                 event: EventType::StartedShift { id: 10 },
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 03).and_hms(0, 24, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 3).and_hms(0, 24, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 03).and_hms(0, 29, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 3).and_hms(0, 29, 0),
                 event: EventType::Awake,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 04).and_hms(0, 2, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 4).and_hms(0, 2, 0),
                 event: EventType::StartedShift { id: 99 },
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 04).and_hms(0, 36, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 4).and_hms(0, 36, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 04).and_hms(0, 46, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 4).and_hms(0, 46, 0),
                 event: EventType::Awake,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 05).and_hms(0, 3, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 5).and_hms(0, 3, 0),
                 event: EventType::StartedShift { id: 99 },
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 05).and_hms(0, 45, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 5).and_hms(0, 45, 0),
                 event: EventType::Asleep,
             },
             GuardEvent {
-                dt: NaiveDate::from_ymd(1518, 11, 05).and_hms(0, 55, 0),
+                dt: NaiveDate::from_ymd(1518, 11, 5).and_hms(0, 55, 0),
                 event: EventType::Awake,
             },
         ];
 
-        assert_eq!(
-            input_schedule(TEST_STR),
-            expected
-        );
+        assert_eq!(input_schedule(TEST_STR), expected);
     }
 
     #[test]
-    fn sleepy(){
+    fn sleepy() {
         let schedule = order_schedule(&input_schedule(TEST_STR));
         let (guard, time_asleep) = sleepiest_guard(&schedule);
-        let (minute, freq) = sleepiest_minute(&schedule.get(&guard).unwrap()).unwrap();
+        let (minute, freq) = sleepiest_minute(&schedule[&guard]).unwrap();
 
         assert_eq!((guard, time_asleep), (10, Duration::minutes(50)));
         assert_eq!((minute, freq), (24, 2));
     }
 
     #[test]
-    fn sample1(){
-        assert_eq!(
-            part1(&input_schedule(TEST_STR)),
-            240
-        )
+    fn sample1() {
+        assert_eq!(part1(&input_schedule(TEST_STR)), 240)
     }
 
     #[test]
-    fn sample2(){
-        assert_eq!(
-            part2(&input_schedule(TEST_STR)),
-            4455
-        )
+    fn sample2() {
+        assert_eq!(part2(&input_schedule(TEST_STR)), 4455)
     }
 }

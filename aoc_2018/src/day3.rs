@@ -1,8 +1,8 @@
 //Day 3: No Matter How You Slice It
 extern crate regex;
 
-use std::collections::HashMap;
 use day3::regex::Regex;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
 pub struct Claim {
@@ -78,10 +78,7 @@ pub fn part2(input: &[Claim]) -> usize {
 
     for claim in input {
         let occupancy = resolve_occupancy(claim);
-        if occupancy
-            .iter()
-            .all(|(x, y)| grid.get(&(*x, *y)).unwrap() == &1)
-        {
+        if occupancy.iter().all(|(x, y)| grid[&(*x, *y)] == 1) {
             return claim.id;
         }
     }
@@ -94,8 +91,8 @@ mod tests {
     use super::*;
 
     static TEST_STR: &str = "#1 @ 1,3: 4x4\n\
-                        #2 @ 3,1: 4x4\n\
-                        #3 @ 5,5: 2x2";
+                             #2 @ 3,1: 4x4\n\
+                             #3 @ 5,5: 2x2";
 
     #[test]
     fn grok_input() {
@@ -123,25 +120,16 @@ mod tests {
             },
         ];
 
-        assert_eq!(
-            input_claims(TEST_STR),
-            expected
-        );
+        assert_eq!(input_claims(TEST_STR), expected);
     }
 
     #[test]
     fn sample1() {
-        assert_eq!(
-            part1(&input_claims(TEST_STR)),
-            4
-        );
+        assert_eq!(part1(&input_claims(TEST_STR)), 4);
     }
 
     #[test]
     fn sample2() {
-        assert_eq!(
-            part2(&input_claims(TEST_STR)),
-            3
-        );
+        assert_eq!(part2(&input_claims(TEST_STR)), 3);
     }
 }
