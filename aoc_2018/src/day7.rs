@@ -2,7 +2,7 @@
 extern crate regex;
 
 use day7::regex::Regex;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
 pub fn input_steps(input: &str) -> BTreeMap<&str, BTreeSet<&str>> {
     let re = Regex::new(r"^Step (.{1}?) must be finished before step (.{1}?) can begin\.$").unwrap();
@@ -67,6 +67,44 @@ pub fn part1(input: &str) -> String {
     complete(start, &mut instructions).chars().rev().collect()
 }
 
+#[aoc(day7, part2)]
+pub fn part2(input: &str) -> isize {
+    //Constants defined in aoc question
+    let num_workers = 5;
+    let value_offset = 60;
+
+    let mut time = 0;
+    let mut workers: BinaryHeap<(isize, &str)> = BinaryHeap::new();  // (completion_time, instruction)
+    let mut instructions = input_steps(input);
+
+    while !(instructions.is_empty() && workers.is_empty()) {
+        while workers.len() < num_workers && !instructions.is_empty() {
+            let next: &str;
+            {
+                if let Some(available_task) = instructions.iter().find(|(_, v)| v.is_empty()) {
+                    next = available_task.0; // Get next instruction to complete (alphabetical order)
+                } else {
+                    break;
+                }
+            }
+
+            instructions.remove(next);
+            let value = next.chars().next().unwrap() as isize - isize::from(b'A') + 1;
+            let completion_time = time - value_offset - value;
+            workers.push((completion_time, next));
+        }
+
+        //The next instruction has completed, remove all instances from the instruction set
+        let (t, next) = workers.pop().unwrap();
+        for steps in instructions.values_mut() {
+            steps.remove(next);
+        }
+
+        time = t; // Update the time to whatever the worker completed
+    }
+
+    -time
+}
 
 #[cfg(test)]
 mod tests {
