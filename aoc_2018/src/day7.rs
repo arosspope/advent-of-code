@@ -5,7 +5,8 @@ use day7::regex::Regex;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
 pub fn input_steps(input: &str) -> BTreeMap<&str, BTreeSet<&str>> {
-    let re = Regex::new(r"^Step (.{1}?) must be finished before step (.{1}?) can begin\.$").unwrap();
+    let re =
+        Regex::new(r"^Step (.{1}?) must be finished before step (.{1}?) can begin\.$").unwrap();
 
     let mut instructions: BTreeMap<&str, BTreeSet<&str>> = BTreeMap::new();
 
@@ -22,9 +23,7 @@ pub fn input_steps(input: &str) -> BTreeMap<&str, BTreeSet<&str>> {
             .or_insert_with(BTreeSet::new)
             .insert(caps[1]);
 
-        instructions
-            .entry(caps[1])
-            .or_insert_with(BTreeSet::new);
+        instructions.entry(caps[1]).or_insert_with(BTreeSet::new);
     }
 
     instructions
@@ -43,7 +42,11 @@ pub fn complete(instruction: &str, instructions: &mut BTreeMap<&str, BTreeSet<&s
     }
 
     let mut order = String::new(); // The order in which instructions were completed
-    let free: Vec<&str> = instructions.iter().filter(|(_, v)| v.is_empty()).map(|(&k, _)| k).collect();
+    let free: Vec<&str> = instructions
+        .iter()
+        .filter(|(_, v)| v.is_empty())
+        .map(|(&k, _)| k)
+        .collect();
     free.iter().for_each(|k| {
         // Find all the instructions that can now be completed
         order.push_str(&complete(k, instructions)); //It's recursive baby!
@@ -52,7 +55,6 @@ pub fn complete(instruction: &str, instructions: &mut BTreeMap<&str, BTreeSet<&s
     order.push_str(instruction);
     order
 }
-
 
 #[aoc(day7, part1)]
 pub fn part1(input: &str) -> String {
@@ -74,7 +76,7 @@ pub fn part2(input: &str) -> isize {
     let value_offset = 60;
 
     let mut time = 0;
-    let mut workers: BinaryHeap<(isize, &str)> = BinaryHeap::new();  // (completion_time, instruction)
+    let mut workers: BinaryHeap<(isize, &str)> = BinaryHeap::new(); // (completion_time, instruction)
     let mut instructions = input_steps(input);
 
     while !(instructions.is_empty() && workers.is_empty()) {
@@ -111,12 +113,12 @@ mod tests {
     use super::*;
 
     static TEST_STR: &str = "Step C must be finished before step A can begin.\n\
-                        Step C must be finished before step F can begin.\n\
-                        Step A must be finished before step B can begin.\n\
-                        Step A must be finished before step D can begin.\n\
-                        Step B must be finished before step E can begin.\n\
-                        Step D must be finished before step E can begin.\n\
-                        Step F must be finished before step E can begin.";
+                             Step C must be finished before step F can begin.\n\
+                             Step A must be finished before step B can begin.\n\
+                             Step A must be finished before step D can begin.\n\
+                             Step B must be finished before step E can begin.\n\
+                             Step D must be finished before step E can begin.\n\
+                             Step F must be finished before step E can begin.";
 
     #[test]
     fn sample1() {

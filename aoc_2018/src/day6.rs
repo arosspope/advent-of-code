@@ -119,7 +119,11 @@ pub fn part2(input: &[Coordinate]) -> usize {
     for x in grid.bounds.min_x..grid.bounds.max_x + 1 {
         for y in grid.bounds.min_y..grid.bounds.max_y + 1 {
             let current = Coordinate { x, y };
-            let sum: usize = grid.locations.iter().map(|o| o.manhattan_dist(&current)).sum();
+            let sum: usize = grid
+                .locations
+                .iter()
+                .map(|o| o.manhattan_dist(&current))
+                .sum();
             if sum < 10000 {
                 cnt += 1;
             }
