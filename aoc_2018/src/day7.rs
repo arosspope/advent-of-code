@@ -30,26 +30,27 @@ pub fn input_steps(input: &str) -> BTreeMap<&str, BTreeSet<&str>> {
     instructions
 }
 
-pub fn reduce(key: &str, instructions: &mut BTreeMap<&str, BTreeSet<&str>>) -> String {
+pub fn complete(instruction: &str, instructions: &mut BTreeMap<&str, BTreeSet<&str>>) -> String {
     if instructions.is_empty() {
         return String::new();
-    }
+    } // We've completely processed the entire instuction set
 
-    let mut code = String::new();
-    instructions.remove(key);
-
+    // Complete the chosen instruction by removing it's entry, and wiping it from the instruction
+    // set of other entries
+    instructions.remove(instruction);
     for steps in instructions.values_mut() {
-        steps.remove(key);
+        steps.remove(instruction);
     }
 
+    let mut order = String::new(); // The order in which instructions were completed
     let free: Vec<&str> = instructions.iter().filter(|(_, v)| v.is_empty()).map(|(&k, _)| k).collect();
     free.iter().for_each(|k| {
-        code.push_str(&reduce(k, instructions));
+        // Find all the instructions that can now be completed
+        order.push_str(&complete(k, instructions)); //It's recursive baby!
     });
 
-
-    code.push_str(key);
-    code
+    order.push_str(instruction);
+    order
 }
 
 
@@ -63,7 +64,7 @@ pub fn part1(input: &str) -> String {
         start = instructions.iter().find(|(_, v)| v.is_empty()).unwrap().0;
     }
 
-    reduce(start, &mut instructions).chars().rev().collect()
+    complete(start, &mut instructions).chars().rev().collect()
 }
 
 
