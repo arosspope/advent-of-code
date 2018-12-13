@@ -27,7 +27,7 @@ fn main() {
     for _ in 0..100_000 {
         sky.tick();
         let (w, h) = sky.dimensions();
-        if w <= 80 && h <= 80 {
+        if w <= 100 && h <= 100 {
             println!("t @ {}s", sky.time);
             println!("{}", sky.display().trim());
         }
