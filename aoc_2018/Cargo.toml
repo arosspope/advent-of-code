@@ -8,6 +8,7 @@ readme = "README.md"
 keywords = ["advent-of-code", "problem-solving"]
 repository = "https://github.com/arosspope/advent-of-code.git"
 description = "Solutions (in rust) to advent of code."
+autobins = false
 
 [dependencies]
 aoc-runner = "0.2.0"
@@ -15,3 +16,7 @@ aoc-runner-derive = "0.2.0"
 regex = "1"
 chrono = "0.4"
 time = "0.1"
+
+[[bin]]
+name = "day10"
+path = "src/day10.rs"
