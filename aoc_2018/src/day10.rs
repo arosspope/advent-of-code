@@ -5,13 +5,13 @@
 //
 extern crate regex;
 
-use std::str;
 use regex::Regex;
 use std::fs::File;
-use std::io::{self, Read, Write};
+use std::io::Read;
 use std::path::Path;
+use std::str;
 
-fn main(){
+fn main() {
     let path = Path::new("input/2018/day10.txt");
     let display = path.display();
     let mut file = match File::open(&path) {
@@ -24,16 +24,15 @@ fn main(){
     file.read_to_string(&mut contents).unwrap();
     let mut sky = NightSky::new(&contents);
 
-    for _ in 0..1_000_00 {
+    for _ in 0..100_000 {
         sky.tick();
         let (w, h) = sky.dimensions();
         if w <= 80 && h <= 80 {
-            writeln!(io::stdout(), "t @ {}s", sky.time).unwrap();
-            writeln!(io::stdout(), "{}", sky.display().trim()).unwrap();
+            println!("t @ {}s", sky.time);
+            println!("{}", sky.display().trim());
         }
     }
 }
-
 
 #[derive(Default, PartialEq, Debug, Eq, Clone)]
 struct Point {
@@ -94,7 +93,10 @@ impl NightSky {
             .map(|l| {
                 let caps = re.captures(l).unwrap();
                 Light {
-                    position: Point{ x: caps["x"].parse().unwrap(), y: caps["y"].parse().unwrap()},
+                    position: Point {
+                        x: caps["x"].parse().unwrap(),
+                        y: caps["y"].parse().unwrap(),
+                    },
                     velocity: (caps["vx"].parse().unwrap(), caps["vy"].parse().unwrap()),
                 }
             })
@@ -113,7 +115,8 @@ impl NightSky {
 
     fn display(&self) -> String {
         let b = self.bounds();
-        let mut grid = vec![vec![b'.'; (b.maxx - b.minx + 1) as usize]; (b.maxy - b.miny + 1) as usize];
+        let mut grid =
+            vec![vec![b'.'; (b.maxx - b.minx + 1) as usize]; (b.maxy - b.miny + 1) as usize];
         for l in &self.lights {
             let p = b.normalaise(&l.position);
             grid[p.y as usize][p.x as usize] = b'#';
@@ -159,12 +162,20 @@ impl NightSky {
             .position
             .x;
 
-        Bounds { minx, maxy, maxx, miny }
+        Bounds {
+            minx,
+            maxy,
+            maxx,
+            miny,
+        }
     }
 
     fn dimensions(&self) -> (usize, usize) {
         let b = self.bounds();
-        ((b.maxx - b.minx + 1) as usize, (b.maxy - b.miny + 1) as usize)
+        (
+            (b.maxx - b.minx + 1) as usize,
+            (b.maxy - b.miny + 1) as usize,
+        )
     }
 }
 
@@ -184,29 +195,27 @@ mod tests {
                              position=< 6, 10> velocity=<-2, -1>\n\
                              position=< 2, -4> velocity=< 2,  2>";
 
-
-
     #[test]
     fn day10_grok_input() {
         let lights = vec![
             Light {
-                position: Point { x: 9, y: 1},
+                position: Point { x: 9, y: 1 },
                 velocity: (0, 2),
             },
             Light {
-                position: Point { x: 7, y: 0},
+                position: Point { x: 7, y: 0 },
                 velocity: (-1, 0),
             },
             Light {
-                position: Point { x: 3, y: -2},
+                position: Point { x: 3, y: -2 },
                 velocity: (-1, 1),
             },
             Light {
-                position: Point { x: 6, y: 10},
+                position: Point { x: 6, y: 10 },
                 velocity: (-2, -1),
             },
             Light {
-                position: Point { x: 2, y: -4},
+                position: Point { x: 2, y: -4 },
                 velocity: (2, 2),
             },
         ];
