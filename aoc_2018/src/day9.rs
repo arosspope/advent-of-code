@@ -1,7 +1,7 @@
 //Day 7: The Sum of Its Parts
 extern crate regex;
 
-use day9::regex::Regex;
+use crate::day9::regex::Regex;
 use std::collections::{HashMap, VecDeque};
 
 pub struct GameInfo {

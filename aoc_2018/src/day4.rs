@@ -3,9 +3,9 @@ extern crate chrono;
 extern crate regex;
 extern crate time;
 
-use day4::chrono::prelude::*;
-use day4::regex::Regex;
-use day4::time::Duration;
+use crate::day4::chrono::prelude::*;
+use crate::day4::regex::Regex;
+use crate::day4::time::Duration;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
