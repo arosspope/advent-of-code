@@ -11,12 +11,13 @@ description = "Solutions (in rust) to advent of code."
 autobins = false
 
 [dependencies]
-aoc-runner = "0.2.0"
-aoc-runner-derive = "0.2.0"
+aoc-runner = "^0.2"
+aoc-runner-derive = "^0.2"
 regex = "1"
-chrono = "0.4"
-time = "0.1"
-itertools = "0.8"
+chrono = "^0.4"
+time = "^0.1"
+itertools = "^0.8"
+log = "^0.4"
 
 [[bin]]
 name = "day10"
