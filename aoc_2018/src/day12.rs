@@ -1,7 +1,4 @@
 //Day 12: Subterranean Sustainability
-extern crate regex;
-
-use regex::Regex;
 use std::fmt;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -20,6 +17,10 @@ impl Pot {
                 _ => panic!("unknown pot state"),
             })
             .collect()
+    }
+
+    fn has_plant(self) -> bool {
+        self == Pot::Plant
     }
 }
 
@@ -49,7 +50,7 @@ impl fmt::Display for Note {
     }
 }
 
-#[derive(Default, Debug, PartialEq, Eq, Clone)]
+#[derive(Default, PartialEq, Eq, Clone)]
 pub struct Garden {
     pots: Vec<Pot>,
     generation: usize,
@@ -62,7 +63,13 @@ impl fmt::Display for Garden {
         self.pots.iter().for_each(|p| {
             write!(f, "{}", p).unwrap();
         });
-        writeln!(f, "\n")?;
+        Ok(())
+    }
+}
+
+impl fmt::Debug for Garden {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}\n", self)?;
         self.notes.iter().for_each(|n| {
             writeln!(f, "{}", n).unwrap();
         });
@@ -74,8 +81,6 @@ impl fmt::Display for Garden {
 pub fn input_garden(input: &str) -> Garden {
     let initial = input.lines().next().unwrap().replace("initial state: ", "");
     let pots: Vec<Pot> = Pot::parse(&initial);
-
-    let re = Regex::new(r"^(?P<from>[#.]{5}) => (?P<to>[#.])$").unwrap();
 
     let notes: Vec<Note> = input
         .lines()
@@ -126,6 +131,6 @@ mod tests {
     fn sample1() {
         let garden = input_garden(TEST_STR);
         let expected = TEST_STR.replace("initial state", "0");
-        assert_eq!(format!("{}", garden), expected);
+        assert_eq!(format!("{:?}", garden), expected);
     }
 }
