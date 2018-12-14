@@ -183,6 +183,42 @@ pub fn part1(input: &Garden) -> isize {
     garden.sum_pots()
 }
 
+#[aoc(day12, part2)]
+pub fn part2(input: &Garden) -> usize {
+    const TARGET: usize = 50_000_000_000;
+
+    let mut garden = input.clone();
+    let mut diff: usize = 0;
+    let mut pattern: usize = 0;
+    let mut last = 0;
+
+    loop {
+        garden.grow();
+
+        let sum = garden.sum_pots();
+        let ds = (sum - last) as usize;
+
+        if ds == diff {
+            pattern += 1;
+        } else {
+            pattern = 0;
+        }
+
+        if pattern > 10 {
+            println!(
+                "Converged to +{} per gen after {} generations",
+                diff, garden.generation
+            );
+            break;
+        }
+
+        diff = ds;
+        last = sum;
+    }
+
+    diff * (TARGET - garden.generation) + garden.sum_pots() as usize
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
