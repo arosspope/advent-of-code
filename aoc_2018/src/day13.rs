@@ -1,8 +1,9 @@
 //Day 13: Mine Cart Madness
 //
+use std::collections::HashSet;
 use std::fmt;
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug, Ord, PartialOrd, Copy)]
 pub struct Point {
     x: usize,
     y: usize,
@@ -98,6 +99,7 @@ impl fmt::Display for Track {
 
 #[derive(Clone)]
 struct Cart {
+    id: usize,
     crashed: bool,
     pos: Point,
     direction: Heading,
@@ -124,8 +126,9 @@ impl fmt::Display for Cart {
 }
 
 impl Cart {
-    fn new(direction: Heading, pos: Point) -> Cart {
+    fn new(id: usize, direction: Heading, pos: Point) -> Cart {
         Cart {
+            id,
             crashed: false,
             pos,
             direction,
@@ -174,37 +177,39 @@ pub struct Mine {
 
 impl Mine {
     fn tick(&mut self) {
-        // let mut crashed = Vec::new();
+        self.carts.sort_by_key(|c| c.pos);
 
-        for cart in self.carts.iter_mut() {
-            if cart.crashed {
+        let mut recently_crashed = HashSet::new();
+        let mut tmp = self.carts.clone();
+
+        for cart in self.carts.iter_mut().filter(|c| !c.crashed) {
+            if recently_crashed.contains(&cart.id) {
                 continue;
             }
 
             cart.advance();
-            cart.turn(&self.map[cart.pos.x][cart.pos.y]); //Turn the cart if required based on the track underneath
+            cart.turn(&self.map[cart.pos.x][cart.pos.y]); //Turn the cart (if required) based on the track underneath
 
-            //Do collision checking...
-        }
-
-        let mut tmp = self.carts.clone();
-        for (i, cart) in self.carts.iter().enumerate() {
-            if cart.crashed {
-                continue;
+            //Update the tmp copy with the new information
+            if let Some(copy) = tmp.iter_mut().find(|c| c.id == cart.id) {
+                *copy = cart.clone();
             }
 
-            if let Some((x, _)) = self
-                .carts
-                .iter()
-                .enumerate()
-                .find(|(j, other)| &i != j && other.pos == cart.pos && !other.crashed)
-            {
-                tmp[i].crashed = true;
-                tmp[x].crashed = true;
+            //Determine if their is a collision with any other carts
+            for other in tmp.iter().filter(|o| !o.crashed && o.id != cart.id) {
+                if other.pos == cart.pos {
+                    recently_crashed.insert(other.id);
+                    recently_crashed.insert(cart.id);
+                }
             }
         }
 
-        self.carts = tmp;
+        //Update the carts that crashed in this tick
+        for id in recently_crashed.iter() {
+            if let Some(cart) = self.carts.iter_mut().find(|c| c.id == *id) {
+                (*cart).crashed = true;
+            }
+        }
     }
 }
 
@@ -235,12 +240,13 @@ pub fn input_mine(input: &str) -> Mine {
         vec![Track::None; input.lines().count()];
         input.lines().next().unwrap().chars().count()
     ];
-
+    let mut id = 0;
     for (y, row) in input.lines().enumerate() {
         for (x, col) in row.chars().enumerate() {
             map[x][y] = match col {
                 '^' | 'v' | '<' | '>' => {
-                    carts.push(Cart::new(Heading::new(col), Point { x, y }));
+                    carts.push(Cart::new(id, Heading::new(col), Point { x, y }));
+                    id += 1;
                     Track::new(col)
                 }
                 _ => Track::new(col),
@@ -257,7 +263,7 @@ pub fn part1(input: &Mine) -> Point {
     loop {
         mine.tick();
         if let Some(crash) = mine.carts.iter().find(|c| c.crashed) {
-            return crash.pos.clone();
+            return crash.pos;
         }
     }
 }
@@ -265,12 +271,12 @@ pub fn part1(input: &Mine) -> Point {
 #[aoc(day13, part2)]
 pub fn part2(input: &Mine) -> Point {
     let mut mine = input.clone();
+
     loop {
         mine.tick();
-
-        if mine.carts.iter().filter(|c| !c.crashed).count() <= 1 {
+        if mine.carts.iter().filter(|c| !c.crashed).count() == 1 {
             let last = mine.carts.iter().find(|c| !c.crashed).unwrap();
-            return last.pos.clone();
+            return last.pos;
         }
     }
 }
@@ -291,10 +297,21 @@ mod tests {
     static TEST_STR2: &str = r#"/>-<\  
 |   |  
 | /<+-\
-| | | v
+| v | v
 \>+</ |
   |   ^
   \<->/"#;
+
+    #[rustfmt::skip]
+    static EDGE1: &str = r#"/--->>---\
+^        |
+\--------/"#;
+
+    #[rustfmt::skip]
+    static EDGE2: &str = r#"/<------\
+v       |
+v       |
+\-------/"#;
 
     #[test]
     fn grok_input() {
@@ -310,5 +327,19 @@ mod tests {
     #[test]
     fn sample2() {
         assert_eq!(part2(&input_mine(TEST_STR2)), Point { x: 6, y: 4 });
+    }
+
+    #[test]
+    fn edge1() {
+        let mut mine = input_mine(EDGE1);
+        mine.tick();
+        assert_eq!(mine.carts.iter().filter(|c| !c.crashed).count(), 1)
+    }
+
+    #[test]
+    fn edge2() {
+        let mut mine = input_mine(EDGE2);
+        mine.tick();
+        assert_eq!(mine.carts.iter().filter(|c| !c.crashed).count(), 1)
     }
 }
