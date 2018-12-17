@@ -34,12 +34,12 @@ impl Heading {
         }
     }
 
-    fn left(&self) -> Heading {
+    fn counter_clockwise(&self) -> Heading {
         let i = *self as usize;
         Heading::from(i.checked_sub(1).unwrap_or(3))
     }
 
-    fn right(&self) -> Heading {
+    fn clockwise(&self) -> Heading {
         let i = *self as usize;
         Heading::from((i + 1) % 4)
     }
@@ -148,18 +148,22 @@ impl Cart {
     fn turn(&mut self, track: &Track) {
         match track {
             Track::Left => match self.direction {
-                Heading::East | Heading::West => self.direction = self.direction.left(),
-                Heading::North | Heading::South => self.direction = self.direction.right(),
+                Heading::East | Heading::West => {
+                    self.direction = self.direction.counter_clockwise()
+                }
+                Heading::North | Heading::South => self.direction = self.direction.clockwise(),
             },
             Track::Right => match self.direction {
-                Heading::East | Heading::West => self.direction = self.direction.right(),
-                Heading::North | Heading::South => self.direction = self.direction.left(),
+                Heading::East | Heading::West => self.direction = self.direction.clockwise(),
+                Heading::North | Heading::South => {
+                    self.direction = self.direction.counter_clockwise()
+                }
             },
             Track::Intersection => {
                 match self.intersect_choice % 3 {
-                    0 => self.direction = self.direction.left(),
+                    0 => self.direction = self.direction.counter_clockwise(),
                     1 => (), //We go forward in original direction
-                    2 => self.direction = self.direction.right(),
+                    2 => self.direction = self.direction.clockwise(),
                     _ => unreachable!(),
                 }
                 self.intersect_choice += 1;
