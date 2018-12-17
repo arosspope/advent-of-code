@@ -7,12 +7,6 @@ pub struct Node {
     length: usize, // Total count of numbers in this node. For root, this is the total count of the tree
 }
 
-impl std::convert::AsRef<Node> for Node {
-    fn as_ref(&self) -> &Node {
-        &self
-    }
-}
-
 impl Node {
     fn construct(stream: &[usize]) -> Node {
         let (num_children, num_metadata) = (stream[0], stream[1]);

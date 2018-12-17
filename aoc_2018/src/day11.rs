@@ -3,7 +3,7 @@
 use std::fmt;
 
 #[derive(Debug, Default, PartialEq, Eq)]
-pub struct PowerCell (usize, usize, usize); // Of the format (x, y, size)
+pub struct PowerCell(usize, usize, usize); // Of the format (x, y, size)
 
 impl fmt::Display for PowerCell {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -15,7 +15,7 @@ pub fn optimal_power(grid: &[[isize; 300]; 300], size: usize) -> (isize, PowerCe
     let mut max: isize = grid[0][0];
     let mut max_fuel_cell = PowerCell(1, 1, 1); // Indexing starts at 1
 
-    let bound = if size == 300 { 1 } else {(300 - size) % 300};
+    let bound = if size == 300 { 1 } else { (300 - size) % 300 };
 
     for (x, y) in iproduct!(0..bound, 0..bound) {
         let fuel_square_power: isize = iproduct!(0..size, 0..size)
@@ -83,8 +83,8 @@ mod tests {
 
     #[test]
     fn sample1() {
-        assert_eq!(part1("18"), PowerCell(33,45,3));
-        assert_eq!(part1("42"), PowerCell(21,61,3));
+        assert_eq!(part1("18"), PowerCell(33, 45, 3));
+        assert_eq!(part1("42"), PowerCell(21, 61, 3));
     }
 
     #[test]

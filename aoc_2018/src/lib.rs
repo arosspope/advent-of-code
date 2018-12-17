@@ -21,5 +21,6 @@ pub mod day9;
 // pub mod day10; -> This is compiled as a seperate binary `$ cargo run day10`
 pub mod day11;
 pub mod day12;
+pub mod day13;
 
 aoc_lib! { year = 2018 }

@@ -9,12 +9,6 @@ pub struct GameInfo {
     last_marble: usize,
 }
 
-impl std::convert::AsRef<GameInfo> for GameInfo {
-    fn as_ref(&self) -> &GameInfo {
-        &self
-    }
-}
-
 #[aoc_generator(day9)]
 pub fn input_gameinfo(input: &str) -> GameInfo {
     let re = Regex::new(r"^(.*) players; last marble is worth (.*) points$").unwrap();
