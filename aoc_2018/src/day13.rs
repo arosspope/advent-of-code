@@ -174,22 +174,25 @@ pub struct Mine {
 
 impl Mine {
     fn tick(&mut self) {
+        // let mut crashed = Vec::new();
+
         for cart in self.carts.iter_mut() {
             if cart.crashed {
                 continue;
             }
-            // println!("Before, x:{}, y:{}", cart.pos.x, cart.pos.y);
-            cart.advance();
-            // println!("After, x:{}, y:{}\n", cart.pos.x, cart.pos.y);
-            cart.turn(&self.map[cart.pos.x][cart.pos.y]);
 
-            //Move cart
-            //Turn cart if required
-            //Check if cart occupies space with other cart - get both carts and mark as crashed
+            cart.advance();
+            cart.turn(&self.map[cart.pos.x][cart.pos.y]); //Turn the cart if required based on the track underneath
+
+            //Do collision checking...
         }
 
         let mut tmp = self.carts.clone();
         for (i, cart) in self.carts.iter().enumerate() {
+            if cart.crashed {
+                continue;
+            }
+
             if let Some((x, _)) = self
                 .carts
                 .iter()
@@ -261,7 +264,15 @@ pub fn part1(input: &Mine) -> Point {
 
 #[aoc(day13, part2)]
 pub fn part2(input: &Mine) -> Point {
-    Point { x: 0, y: 0 }
+    let mut mine = input.clone();
+    loop {
+        mine.tick();
+
+        if mine.carts.iter().filter(|c| !c.crashed).count() <= 1 {
+            let last = mine.carts.iter().find(|c| !c.crashed).unwrap();
+            return last.pos.clone();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -269,22 +280,35 @@ mod tests {
     use super::*;
 
     #[rustfmt::skip]
-    static TEST_STR: &str = r#"/->-\        
+    static TEST_STR1: &str = r#"/->-\        
 |   |  /----\
 | /-+--+-\  |
 | | |  | v  |
 \-+-/  \-+--/
   \------/   "#;
 
+    #[rustfmt::skip]
+    static TEST_STR2: &str = r#"/>-<\  
+|   |  
+| /<+-\
+| | | v
+\>+</ |
+  |   ^
+  \<->/"#;
+
     #[test]
     fn grok_input() {
-        let mine = input_mine(TEST_STR);
-        assert_eq!(format!("{}", mine), format!("{}\n", TEST_STR));
+        let mine = input_mine(TEST_STR1);
+        assert_eq!(format!("{}", mine), format!("{}\n", TEST_STR1));
     }
 
     #[test]
     fn sample1() {
-        assert_eq!(part1(&input_mine(TEST_STR)), Point { x: 7, y: 3 });
+        assert_eq!(part1(&input_mine(TEST_STR1)), Point { x: 7, y: 3 });
     }
 
+    #[test]
+    fn sample2() {
+        assert_eq!(part2(&input_mine(TEST_STR2)), Point { x: 6, y: 4 });
+    }
 }
