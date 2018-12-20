@@ -179,6 +179,12 @@ pub struct Mine {
     carts: Vec<Cart>,
 }
 
+impl std::convert::AsRef<Mine> for Mine {
+    fn as_ref(&self) -> &Mine {
+        &self
+    }
+}
+
 impl Mine {
     fn tick(&mut self) {
         self.carts.sort_by_key(|c| c.pos);
@@ -299,7 +305,7 @@ mod tests {
 
     #[rustfmt::skip]
     static TEST_STR2: &str = r#"/>-<\  
-|   |  
+|   | 
 | /<+-\
 | v | v
 \>+</ |
