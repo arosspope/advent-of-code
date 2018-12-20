@@ -9,7 +9,7 @@ pub struct Point {
     y: usize,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum Terrain {
     Wall,
     Empty,
@@ -25,7 +25,7 @@ impl From<char> for Terrain {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum Race {
     Elf,
     Goblin,
@@ -67,7 +67,7 @@ impl fmt::Display for Terrain {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub struct Unit {
     id: usize,
     pos: Point,
@@ -77,10 +77,15 @@ pub struct Unit {
 
 impl Unit {
     fn new(id: usize, pos: Point, race: Race) -> Self {
-        Unit {id, pos, race, hp: 200}
+        Unit {
+            id,
+            pos,
+            race,
+            hp: 200,
+        }
     }
 
-    fn is_enemy(&self, other: Unit) -> bool {
+    fn is_enemy(&self, other: &Unit) -> bool {
         self.race != other.race
     }
 
@@ -114,6 +119,47 @@ impl Cavern {
         }
 
         self.map[pos.x][pos.y] == Terrain::Empty
+    }
+
+    fn in_range_enemies(&self, unit: &Unit) -> Vec<Unit> {
+        let mut in_range_points = Vec::new();
+        if unit.pos.x < self.map.len() {
+            in_range_points.push(Point {
+                x: unit.pos.x + 1,
+                y: unit.pos.y,
+            });
+        }
+
+        if unit.pos.x > 0 {
+            in_range_points.push(Point {
+                x: unit.pos.x - 1,
+                y: unit.pos.y,
+            });
+        }
+
+        if unit.pos.y < self.map[0].len() {
+            in_range_points.push(Point {
+                x: unit.pos.x,
+                y: unit.pos.y + 1,
+            });
+        }
+
+        if unit.pos.y > 0 {
+            in_range_points.push(Point {
+                x: unit.pos.x,
+                y: unit.pos.y - 1,
+            });
+        }
+
+        self.units
+            .iter()
+            .cloned()
+            .filter(|u| unit.is_enemy(&u) && in_range_points.contains(&u.pos) && !u.is_dead())
+            .collect()
+    }
+
+    fn round(&mut self) {
+        self.units.sort_by_key(|u| u.pos.y);
     }
 }
 
@@ -176,20 +222,32 @@ mod tests {
     use super::*;
 
     static TEST_STR: &str = "#######\n\
-#.G...#\n\
-#...EG#\n\
-#.#.#G#\n\
-#..G#E#\n\
-#.....#\n\
-#######";
+                             #.G...#\n\
+                             #...EG#\n\
+                             #.#.#G#\n\
+                             #..G#E#\n\
+                             #.....#\n\
+                             #######";
 
     #[test]
     fn grok_input() {
-        assert_eq!(format!("{}", input_cavern(TEST_STR)), format!("{}\n",TEST_STR));
+        assert_eq!(
+            format!("{}", input_cavern(TEST_STR)),
+            format!("{}\n", TEST_STR)
+        );
     }
 
     #[test]
-    fn ordering() {
+    fn in_range() {
+        let cavern = input_cavern(TEST_STR);
 
+        assert!(cavern.in_range_enemies(&cavern.units[0]).is_empty());
+        assert!(cavern.in_range_enemies(&cavern.units[4]).is_empty());
+        
+        assert_eq!(cavern.in_range_enemies(&cavern.units[1]).len(), 1);
+        assert_eq!(cavern.in_range_enemies(&cavern.units[1])[0], cavern.units[2]);
+        
+        assert_eq!(cavern.in_range_enemies(&cavern.units[5]).len(), 1);
+        assert_eq!(cavern.in_range_enemies(&cavern.units[5])[0], cavern.units[3]);
     }
 }
