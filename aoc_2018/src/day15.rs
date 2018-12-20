@@ -121,7 +121,7 @@ impl Cavern {
         self.map[pos.x][pos.y] == Terrain::Empty
     }
 
-    fn in_range_enemies(&self, unit: &Unit) -> Vec<Unit> {
+    fn nearest_enemies(&self, unit: &Unit) -> Vec<Unit> {
         let mut in_range_points = Vec::new();
         if unit.pos.x < self.map.len() {
             in_range_points.push(Point {
@@ -156,6 +156,10 @@ impl Cavern {
             .cloned()
             .filter(|u| unit.is_enemy(&u) && in_range_points.contains(&u.pos) && !u.is_dead())
             .collect()
+    }
+    
+    fn reachable_enemies(&self, unit: &Unit) -> Vec<Unit> {
+        Vec::new()
     }
 
     fn round(&mut self) {
@@ -238,16 +242,16 @@ mod tests {
     }
 
     #[test]
-    fn in_range() {
+    fn nearest() {
         let cavern = input_cavern(TEST_STR);
 
-        assert!(cavern.in_range_enemies(&cavern.units[0]).is_empty());
-        assert!(cavern.in_range_enemies(&cavern.units[4]).is_empty());
+        assert!(cavern.nearest_enemies(&cavern.units[0]).is_empty());
+        assert!(cavern.nearest_enemies(&cavern.units[4]).is_empty());
         
-        assert_eq!(cavern.in_range_enemies(&cavern.units[1]).len(), 1);
-        assert_eq!(cavern.in_range_enemies(&cavern.units[1])[0], cavern.units[2]);
+        assert_eq!(cavern.nearest_enemies(&cavern.units[1]).len(), 1);
+        assert_eq!(cavern.nearest_enemies(&cavern.units[1])[0], cavern.units[2]);
         
-        assert_eq!(cavern.in_range_enemies(&cavern.units[5]).len(), 1);
-        assert_eq!(cavern.in_range_enemies(&cavern.units[5])[0], cavern.units[3]);
+        assert_eq!(cavern.nearest_enemies(&cavern.units[5]).len(), 1);
+        assert_eq!(cavern.nearest_enemies(&cavern.units[5])[0], cavern.units[3]);
     }
 }
