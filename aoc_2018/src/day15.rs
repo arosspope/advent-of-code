@@ -1,26 +1,38 @@
 //Day 15: Beverage Bandits
 //
-use std::collections::{HashMap, VecDeque, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
 pub struct Point {
     y: usize, //Ordering occurs by y
-    x: usize,    
+    x: usize,
 }
 
 impl Point {
     fn adjacent(&self) -> Vec<Point> {
         let mut adjacent = Vec::new();
         if self.y > 0 {
-            adjacent.push(Point { x: self.x, y: self.y - 1});
+            adjacent.push(Point {
+                x: self.x,
+                y: self.y - 1,
+            });
         }
         if self.x > 0 {
-            adjacent.push(Point { x: self.x - 1, y: self.y });
+            adjacent.push(Point {
+                x: self.x - 1,
+                y: self.y,
+            });
         }
-        adjacent.push(Point { x: self.x + 1, y: self.y });
-        adjacent.push(Point { x: self.x, y: self.y + 1 });
-        
+        adjacent.push(Point {
+            x: self.x + 1,
+            y: self.y,
+        });
+        adjacent.push(Point {
+            x: self.x,
+            y: self.y + 1,
+        });
+
         adjacent
     }
 }
@@ -100,14 +112,14 @@ impl Unit {
             ap: 3,
         }
     }
-    
+
     fn enemy(&self) -> Race {
         match self.race {
             Race::Elf => Race::Goblin,
             Race::Goblin => Race::Elf,
         }
     }
-    
+
     fn is_enemy(&self, other: &Unit) -> bool {
         other.race == self.enemy()
     }
@@ -141,27 +153,37 @@ impl Cavern {
         //Update the Elves' attack power
         self.units
             .iter_mut()
-            .filter(|(_,v)| v.race == Race::Elf)
+            .filter(|(_, v)| v.race == Race::Elf)
             .for_each(|(_, v)| v.ap = ap)
     }
-    
+
     fn elves(&self) -> usize {
-        self.units.iter().filter(|(_,v)| v.race == Race::Elf && !v.is_dead()).count()
+        self.units
+            .iter()
+            .filter(|(_, v)| v.race == Race::Elf && !v.is_dead())
+            .count()
     }
-    
+
     fn goblins(&self) -> usize {
-        self.units.iter().filter(|(_,v)| v.race == Race::Goblin && !v.is_dead()).count()
+        self.units
+            .iter()
+            .filter(|(_, v)| v.race == Race::Goblin && !v.is_dead())
+            .count()
     }
-     
+
     fn total_hp(&self) -> usize {
-        self.units.iter().filter(|(_,v)| !v.is_dead()).map(|(_, v)| v.hp as usize).sum()
+        self.units
+            .iter()
+            .filter(|(_, v)| !v.is_dead())
+            .map(|(_, v)| v.hp as usize)
+            .sum()
     }
-    
+
     fn attack(&mut self, ap: usize, target: usize) {
         let hp = self.units[&target].hp;
         self.units.get_mut(&target).unwrap().hp = hp - (ap as isize);
     }
-    
+
     fn adjacent(&self, pos: &Point) -> Vec<Point> {
         pos.adjacent()
             .iter()
@@ -169,13 +191,17 @@ impl Cavern {
             .filter(|p| p.x < self.map.len() && p.y < self.map[0].len())
             .collect()
     }
-    
+
     fn attackable_target(&self, unit: usize) -> Option<usize> {
         let u = self.units[&unit];
         self.adjacent(&u.pos)
             .into_iter()
             .filter_map(|adj| {
-                if let Some(target) = self.units.iter().find(|(_, v)| v.pos == adj && u.is_enemy(v) && !v.is_dead()) {
+                if let Some(target) = self
+                    .units
+                    .iter()
+                    .find(|(_, v)| v.pos == adj && u.is_enemy(v) && !v.is_dead())
+                {
                     Some(*target.0)
                 } else {
                     None
@@ -183,25 +209,25 @@ impl Cavern {
             })
             .min_by_key(|k| self.units[k].hp)
     }
-    
+
     fn move_unit(&mut self, unit: usize, pos: Point) {
         self.units.get_mut(&unit).unwrap().pos = pos;
     }
-    
+
     fn move_from(&self, from: Point, target: Race) -> Option<Point> {
         struct Node {
             position: Point,
             previous: Point,
             distance: usize,
         }
-        
+
         let mut distance_max = self.map.len() * self.map[0].len();
 
         let mut solutions = Vec::new();
         let mut open_set = VecDeque::new();
         let mut visited = HashSet::new();
         visited.insert(from);
-        
+
         for adj in self.adjacent(&from) {
             let has_unit = self.units.iter().any(|(_, v)| v.pos == adj && !v.is_dead());
             if self.map[adj.x][adj.y] == Terrain::Empty && !has_unit {
@@ -228,8 +254,12 @@ impl Cavern {
                 if visited.contains(&adj) {
                     continue;
                 }
-                
-                if let Some(occupant) = self.units.iter().find(|(_, v)| v.pos == adj && !v.is_dead()) {
+
+                if let Some(occupant) = self
+                    .units
+                    .iter()
+                    .find(|(_, v)| v.pos == adj && !v.is_dead())
+                {
                     if occupant.1.race == target {
                         distance_max = distance;
                         solutions.push((position, previous));
@@ -244,47 +274,47 @@ impl Cavern {
                 }
             }
         }
-        
+
         solutions
             .into_iter()
             .min_by_key(|(_, prev)| prev.y)
             .map(|(_, previous)| previous)
     }
-    
+
     fn round(&mut self) {
-        let mut process: Vec<usize> = self.units
+        let mut process: Vec<usize> = self
+            .units
             .iter()
-            .filter(|(_,v)| !v.is_dead())
+            .filter(|(_, v)| !v.is_dead())
             .map(|(k, _)| k.clone())
             .collect();
-        
         process.sort_by_key(|k| self.units[k].pos);
-        
-        
-        println!("process order {:?}", process);
+
         for unit in process {
             if self.goblins() == 0 || self.elves() == 0 {
                 return; // One side has wiped the other out - return early, round was not completed
             }
-            
+
             if self.units[&unit].is_dead() {
                 continue; //It was killed by another unit during a previous round
             }
-            
+
             if let Some(target) = self.attackable_target(unit) {
                 self.attack(self.units[&unit].ap, target); // For mordor!
             } else {
                 // Search for an enemy to move towards
                 //  ...
-                if let Some(movement) = self.move_from(self.units[&unit].pos, self.units[&unit].enemy()) {
+                if let Some(movement) =
+                    self.move_from(self.units[&unit].pos, self.units[&unit].enemy())
+                {
                     self.move_unit(unit, movement);
                     if let Some(target) = self.attackable_target(unit) {
                         self.attack(self.units[&unit].ap, target);
                     }
                 }
-            }        
+            }
         }
-        
+
         self.round += 1
     }
 }
@@ -296,7 +326,11 @@ impl fmt::Display for Cavern {
 
         for y in 0..ysize {
             for x in 0..xsize {
-                if let Some((_,u)) = self.units.iter().find(|(_,u)| u.pos == Point { x, y } && !u.is_dead()) {
+                if let Some((_, u)) = self
+                    .units
+                    .iter()
+                    .find(|(_, u)| u.pos == Point { x, y } && !u.is_dead())
+                {
                     write!(f, "{}", u)?
                 } else {
                     write!(f, "{}", self.map[x][y])?
@@ -330,36 +364,52 @@ pub fn input_cavern(input: &str) -> Cavern {
         }
     }
 
-    Cavern { map, units, round: 0 }
+    Cavern {
+        map,
+        units,
+        round: 0,
+    }
 }
 
 #[aoc(day15, part1)]
 pub fn part1(input: &Cavern) -> usize {
     let mut cavern = input.clone();
-    
+
     loop {
-        println!("({})\n{}", cavern.round, cavern);
-        for (k, u) in cavern.units.iter() {
-            println!("{}({}, hp:{})", u.race, k, u.hp);
-        }
-        
-        
         cavern.round();
-        println!("");
-        
+
         if cavern.elves() == 0 || cavern.goblins() == 0 {
             break;
         }
     }
-    
-    println!("round: {}, remainder hp: {}\n{}", cavern.round, cavern.total_hp(), cavern);
-    
+
     cavern.round * cavern.total_hp()
 }
 
 #[aoc(day15, part2)]
 pub fn part2(input: &Cavern) -> usize {
-    0
+    let elven_army = input.elves();
+
+    for ap in 4.. {
+        let mut cavern = input.clone();
+        cavern.alter_timespace(ap); //Give the elves the edge by altering their attack power
+
+        'inner: loop {
+            cavern.round();
+
+            if cavern.elves() == 0 || cavern.goblins() == 0 || cavern.elves() < elven_army {
+                break 'inner;
+            }
+        }
+
+        if cavern.elves() < elven_army {
+            continue; // The elves were not strong enough to overcome the goblins
+        } else {
+            return cavern.round * cavern.total_hp();
+        }
+    }
+
+    unreachable!()
 }
 
 #[cfg(test)]
@@ -373,40 +423,40 @@ mod tests {
                              #..G#E#\n\
                              #.....#\n\
                              #######";
-    
+
     static GAME1: &str = "#######\n\
-#G..#E#\n\
-#E#E.E#\n\
-#G.##.#\n\
-#...#E#\n\
-#...E.#\n\
-#######";
+                          #G..#E#\n\
+                          #E#E.E#\n\
+                          #G.##.#\n\
+                          #...#E#\n\
+                          #...E.#\n\
+                          #######";
 
     static GAME2: &str = "#######\n\
-#.G...#\n\
-#...EG#\n\
-#.#.#G#\n\
-#..G#E#\n\
-#.....#\n\
-#######";
+                          #.G...#\n\
+                          #...EG#\n\
+                          #.#.#G#\n\
+                          #..G#E#\n\
+                          #.....#\n\
+                          #######";
 
     static GAME3: &str = "#########\n\
-#G......#\n\
-#.E.#...#\n\
-#..##..G#\n\
-#...##..#\n\
-#...#...#\n\
-#.G...G.#\n\
-#.....G.#\n\
-#########";
+                          #G......#\n\
+                          #.E.#...#\n\
+                          #..##..G#\n\
+                          #...##..#\n\
+                          #...#...#\n\
+                          #.G...G.#\n\
+                          #.....G.#\n\
+                          #########";
 
     static GAME4: &str = "#######\n\
-#E..EG#\n\
-#.#G.E#\n\
-#E.##E#\n\
-#G..#.#\n\
-#..E#.#\n\
-#######";
+                          #E..EG#\n\
+                          #.#G.E#\n\
+                          #E.##E#\n\
+                          #G..#.#\n\
+                          #..E#.#\n\
+                          #######";
 
     #[test]
     fn grok_input() {
@@ -415,24 +465,29 @@ mod tests {
             format!("{}\n", TEST_STR)
         );
     }
-    
+
     #[test]
-    fn game1(){
+    fn game1() {
         assert_eq!(part1(&input_cavern(GAME1)), 36334);
     }
-    
+
     #[test]
-    fn game2(){
+    fn game2() {
         assert_eq!(part1(&input_cavern(GAME2)), 27730);
     }
-    
+
     #[test]
-    fn game3(){
+    fn game3() {
         assert_eq!(part1(&input_cavern(GAME3)), 18740);
     }
-    
+
     #[test]
-    fn game4(){
+    fn game4() {
         assert_eq!(part1(&input_cavern(GAME4)), 39514);
+    }
+
+    #[test]
+    fn game5() {
+        assert_eq!(part2(&input_cavern(TEST_STR)), 4988);
     }
 }
