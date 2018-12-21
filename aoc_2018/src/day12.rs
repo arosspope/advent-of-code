@@ -183,7 +183,7 @@ pub fn part1(input: &Garden) -> isize {
 
     for _ in 0..20 {
         garden.grow();
-        println!("{}", garden);
+        debug!("{}", garden);
     }
 
     garden.sum_pots()
