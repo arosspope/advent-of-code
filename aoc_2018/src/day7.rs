@@ -1,7 +1,6 @@
 //Day 7: The Sum of Its Parts
-extern crate regex;
-
-use crate::day7::regex::Regex;
+//
+use regex::Regex;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
 pub fn input_steps(input: &str) -> BTreeMap<&str, BTreeSet<&str>> {

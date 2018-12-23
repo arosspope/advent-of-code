@@ -3,8 +3,6 @@
 // This day requires a visualisation of the problem to solve. As such, this day is
 // compiled as a seperate binary. Run with: `cargo run day10`
 //
-extern crate regex;
-
 use regex::Regex;
 use std::fs::File;
 use std::io::Read;

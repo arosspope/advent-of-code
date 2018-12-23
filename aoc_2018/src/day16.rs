@@ -1,6 +1,8 @@
-//Day 7: The Sum of Its Parts
+//Day 16: Chronal Classification
 //
-use regex::Regex;
+extern crate regex;
+
+use crate::day9::regex::Regex;
 use std::collections::{HashMap, VecDeque};
 
 pub struct GameInfo {

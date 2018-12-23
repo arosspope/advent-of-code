@@ -1,5 +1,5 @@
 //Day 5: Alchemical Reduction
-
+//
 fn react_polymer(polymer: &str) -> usize {
     let search_iter = (0..26)
         .map(|x| {

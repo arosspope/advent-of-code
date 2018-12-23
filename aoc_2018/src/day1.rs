@@ -1,4 +1,5 @@
 //Day 1: Chronal Calibration
+//
 use std::collections::HashSet;
 
 #[aoc_generator(day1)]
