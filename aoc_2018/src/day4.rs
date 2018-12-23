@@ -2,8 +2,8 @@
 //
 use chrono::prelude::*;
 use regex::Regex;
-use time::Duration;
 use std::collections::HashMap;
+use time::Duration;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventType {
