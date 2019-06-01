@@ -1,4 +1,5 @@
 //Day 2: Inventory Management System
+//
 use std::collections::HashMap;
 
 #[aoc(day2, part1)]

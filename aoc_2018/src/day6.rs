@@ -1,5 +1,5 @@
 //Day 6: Chronal Coordinates
-
+//
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Coordinate {
     x: usize,

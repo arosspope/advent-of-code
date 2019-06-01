@@ -1,10 +1,16 @@
 // Day 8: Memory Maneuver
-
+//
 #[derive(Default, Debug, PartialEq)]
 pub struct Node {
     children: Vec<Node>,
     metadata: Vec<usize>,
     length: usize, // Total count of numbers in this node. For root, this is the total count of the tree
+}
+
+impl std::convert::AsRef<Node> for Node {
+    fn as_ref(&self) -> &Node {
+        &self
+    }
 }
 
 impl Node {

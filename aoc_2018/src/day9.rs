@@ -1,12 +1,17 @@
 //Day 7: The Sum of Its Parts
-extern crate regex;
-
-use crate::day9::regex::Regex;
+//
+use regex::Regex;
 use std::collections::{HashMap, VecDeque};
 
 pub struct GameInfo {
     players: usize,
     last_marble: usize,
+}
+
+impl std::convert::AsRef<GameInfo> for GameInfo {
+    fn as_ref(&self) -> &GameInfo {
+        &self
+    }
 }
 
 #[aoc_generator(day9)]

@@ -1,7 +1,6 @@
 //Day 3: No Matter How You Slice It
-extern crate regex;
-
-use crate::day3::regex::Regex;
+//
+use regex::Regex;
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]

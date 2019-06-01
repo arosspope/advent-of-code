@@ -1,12 +1,9 @@
 //Day 4: Repose Record
-extern crate chrono;
-extern crate regex;
-extern crate time;
-
-use crate::day4::chrono::prelude::*;
-use crate::day4::regex::Regex;
-use crate::day4::time::Duration;
+//
+use chrono::prelude::*;
+use regex::Regex;
 use std::collections::HashMap;
+use time::Duration;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventType {

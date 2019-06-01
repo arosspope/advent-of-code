@@ -61,6 +61,12 @@ pub struct Garden {
     notes: Vec<Note>,
 }
 
+impl std::convert::AsRef<Garden> for Garden {
+    fn as_ref(&self) -> &Garden {
+        &self
+    }
+}
+
 impl Garden {
     fn grow(&mut self) {
         self.expand(); // Make sure there is some room to grow!
@@ -177,7 +183,7 @@ pub fn part1(input: &Garden) -> isize {
 
     for _ in 0..20 {
         garden.grow();
-        println!("{}", garden);
+        debug!("{}", garden);
     }
 
     garden.sum_pots()
