@@ -7,7 +7,7 @@ use core::slice::Iter;
 pub struct Sample {
     instruction: Vec<usize>,
     before: Vec<usize>,
-    after: Vec<usize>,
+    after: Vec<usize>
 }
 
 #[derive(Hash, PartialEq, Eq, Debug)]
@@ -64,7 +64,27 @@ impl Opcode {
     }
 }
 
-#[aoc_generator(day16)]
+pub fn parse_test_program(input: &str) -> Vec<Vec<usize>> {
+    let mut test_program: Vec<Vec<usize>> = Vec::new();
+    
+    let program_start = input.find("\n\n\n").unwrap();
+    let start = &input[(program_start + 4)..];
+    
+    for line in start.lines() {
+        let instructions = line
+            .trim()
+            .split(' ')
+            .flat_map(str::parse::<usize>)
+            .collect();
+            
+        test_program.push(instructions);
+    }
+    
+    println!("{:?}", test_program);
+    test_program
+}
+
+#[aoc_generator(day16, part1)]
 pub fn input_samples(input: &str) -> Vec<Sample> {
     let mut samples = Vec::new();
     let mut lines = input.lines();
@@ -133,7 +153,10 @@ pub fn part1(samples: &[Sample]) -> usize {
 }
 
 #[aoc(day16, part2)]
-pub fn part2(_input: &[Sample]) -> usize {
+pub fn part2(input: &str) -> usize {
+    let samples = input_samples(input);
+    let test_program = parse_test_program(input);
+    
     0
 }
 
