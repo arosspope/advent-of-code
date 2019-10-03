@@ -3,13 +3,14 @@
 use crate::day16::Opcode::*;
 use core::slice::Iter;
 
+#[derive(Debug)]
 pub struct Sample {
     instruction: Vec<usize>,
     before: Vec<usize>,
     after: Vec<usize>,
 }
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(Hash, PartialEq, Eq, Debug)]
 pub enum Opcode {
     Addr,
     Addi,
@@ -71,26 +72,27 @@ pub fn input_samples(input: &str) -> Vec<Sample> {
     loop {
         if let Some(line) = lines.next() {
             if line.contains("Before") {
-                let before: Vec<usize> = line
-                    .chars()
-                    .filter_map(|c| c.to_digit(10))
-                    .map(|n| n as usize)
+                let before: Vec<usize> = line[7..]
+                    .replace(&['[', ']'][..], "")
+                    .split(',')
+                    .map(|s| s.trim())
+                    .flat_map(str::parse::<usize>)
                     .collect();
-                    
+
                 let instruction: Vec<usize> = lines
                     .next()
                     .unwrap()
-                    .chars()
-                    .filter_map(|c| c.to_digit(10))
-                    .map(|n| n as usize)
+                    .trim()
+                    .split(' ')
+                    .flat_map(str::parse::<usize>)
                     .collect();
-                    
-                let after: Vec<usize> = lines
-                    .next()
-                    .unwrap()
-                    .chars()
-                    .filter_map(|c| c.to_digit(10))
-                    .map(|n| n as usize)
+
+                let after_line = &lines.next().unwrap()[6..];
+                let after: Vec<usize> = after_line
+                    .replace(&['[', ']'][..], "")
+                    .split(',')
+                    .map(|s| s.trim())
+                    .flat_map(str::parse::<usize>)
                     .collect();
 
                 samples.push(Sample {
@@ -108,9 +110,9 @@ pub fn input_samples(input: &str) -> Vec<Sample> {
 }
 
 #[aoc(day16, part1)]
-pub fn part1(samples: &[Sample]) -> usize {    
+pub fn part1(samples: &[Sample]) -> usize {
     let mut three_or_more = 0;
-    
+
     //Iterate over each sample and test each opcode against it
     for s in samples.iter() {
         let mut i = 0;
@@ -121,7 +123,7 @@ pub fn part1(samples: &[Sample]) -> usize {
                 }
             }
         }
-        
+
         if i >= 3 {
             three_or_more += 1;
         }
@@ -143,7 +145,7 @@ mod tests {
                              9 2 1 2\n\
                              After:  [3, 2, 2, 1]\n\n\
                              Before: [3, 2, 1, 1]\n\
-                             8 2 1 2\n\
+                             15 2 1 2\n\
                              After:  [3, 2, 2, 1]\n\n\n1 3 2 1\n2 9 8 1";
 
     #[test]
@@ -153,9 +155,9 @@ mod tests {
         assert_eq!(samples[0].before, vec![3, 2, 1, 1]);
         assert_eq!(samples[0].instruction, vec![9, 2, 1, 2]);
         assert_eq!(samples[0].after, vec![3, 2, 2, 1]);
-        
+
         assert_eq!(samples[1].before, vec![3, 2, 1, 1]);
-        assert_eq!(samples[1].instruction, vec![8, 2, 1, 2]);
+        assert_eq!(samples[1].instruction, vec![15, 2, 1, 2]);
         assert_eq!(samples[1].after, vec![3, 2, 2, 1]);
     }
 
@@ -163,22 +165,39 @@ mod tests {
     fn sample1() {
         assert_eq!(part1(&input_samples(TEST_STR)), 2);
     }
-    
+
     // static OPCODES: [Opcode; 16] = [
     //     Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, Setr, Seti, Gtir,
     //     Gtri, Gtrr, Eqir, Eqri, Eqrr,
     // ];
-    
-    
+
+
     #[test]
     fn operations(){
         let base = vec![3, 2, 2, 1];
-        let ins = vec![9, 2, 1, 0]; 
-        
+        let ins = vec![9, 2, 1, 0];
+
         assert_eq!(Opcode::Addi.op(&ins, &base).unwrap(), vec![3, 2, 2, 1]);
         assert_eq!(Opcode::Addr.op(&ins, &base).unwrap(), vec![4, 2, 2, 1]);
-        
+
         assert_eq!(Opcode::Mulr.op(&ins, &base).unwrap(), vec![4, 2, 2, 1]);
         assert_eq!(Opcode::Muli.op(&ins, &base).unwrap(), vec![2, 2, 2, 1]);
+
+        assert_eq!(Opcode::Banr.op(&ins, &base).unwrap(), vec![2, 2, 2, 1]);
+        assert_eq!(Opcode::Bani.op(&ins, &base).unwrap(), vec![0, 2, 2, 1]);
+
+        assert_eq!(Opcode::Borr.op(&ins, &base).unwrap(), vec![2, 2, 2, 1]);
+        assert_eq!(Opcode::Bori.op(&ins, &base).unwrap(), vec![3, 2, 2, 1]);
+
+        assert_eq!(Opcode::Setr.op(&ins, &base).unwrap(), vec![2, 2, 2, 1]);
+        assert_eq!(Opcode::Seti.op(&ins, &base).unwrap(), vec![2, 2, 2, 1]);
+
+        assert_eq!(Opcode::Gtir.op(&ins, &base).unwrap(), vec![0, 2, 2, 1]);
+        assert_eq!(Opcode::Gtri.op(&ins, &base).unwrap(), vec![1, 2, 2, 1]);
+        assert_eq!(Opcode::Gtrr.op(&ins, &base).unwrap(), vec![0, 2, 2, 1]);
+
+        assert_eq!(Opcode::Eqir.op(&ins, &base).unwrap(), vec![1, 2, 2, 1]);
+        assert_eq!(Opcode::Eqri.op(&ins, &base).unwrap(), vec![0, 2, 2, 1]);
+        assert_eq!(Opcode::Eqrr.op(&ins, &base).unwrap(), vec![1, 2, 2, 1]);
     }
 }
