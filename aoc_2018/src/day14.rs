@@ -27,16 +27,12 @@ pub fn part1(input: &str) -> String {
 }
 
 fn ends_with(s1: &[u8], s2: &[u8]) -> Option<usize> {
-    if s1.len() > s2.len() {
-        if &s1[s1.len() - s2.len()..] == s2 {
-            return Some(s1.len() - s2.len());
-        }
+    if s1.len() > s2.len() && &s1[s1.len() - s2.len()..] == s2 {
+        return Some(s1.len() - s2.len());
     }
 
-    if s1.len() - 1 >= s2.len() {
-        if &s1[s1.len() - 1 - s2.len()..s1.len() - 1] == s2 {
-            return Some(s1.len() - s2.len() - 1);
-        }
+    if s1.len() > s2.len() && &s1[s1.len() - 1 - s2.len()..s1.len() - 1] == s2 {
+        return Some(s1.len() - s2.len() - 1);
     }
 
     None

@@ -1,14 +1,14 @@
 //Day 16: Chronal Classification
 //
 use crate::day16::Opcode::*;
-use core::{slice::Iter};
-use std::collections::{HashMap};
+use core::slice::Iter;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Sample {
     instruction: Vec<usize>,
     before: Vec<usize>,
-    after: Vec<usize>
+    after: Vec<usize>,
 }
 
 #[derive(Hash, PartialEq, Eq, Debug)]
@@ -58,26 +58,26 @@ impl Opcode {
 
     pub fn opcodes() -> Iter<'static, Opcode> {
         static OPCODES: [Opcode; 16] = [
-            Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, Setr, Seti, Gtir,
-            Gtri, Gtrr, Eqir, Eqri, Eqrr,
+            Addr, Addi, Mulr, Muli, Banr, Bani, Borr, Bori, Setr, Seti, Gtir, Gtri, Gtrr, Eqir,
+            Eqri, Eqrr,
         ];
-        OPCODES.into_iter()
+        OPCODES.iter()
     }
 }
 
 pub fn parse_test_program(input: &str) -> Vec<Vec<usize>> {
     let mut test_program: Vec<Vec<usize>> = Vec::new();
-    
+
     let program_start = input.find("\n\n\n").unwrap();
     let start = &input[(program_start + 4)..];
-    
+
     for line in start.lines() {
         let instructions = line
             .trim()
             .split(' ')
             .flat_map(str::parse::<usize>)
             .collect();
-            
+
         test_program.push(instructions);
     }
 
@@ -161,19 +161,22 @@ pub fn part2(input: &str) -> usize {
     let samples = input_samples(input);
     let test_program = parse_test_program(input);
     let mut opcode_guesses: HashMap<&Opcode, Vec<usize>> = HashMap::new();
-    
+
     // Parse the samples, and record the guesses
     for s in samples.iter() {
         for oc in Opcode::opcodes() {
             if let Some(result) = oc.op(&s.instruction, &s.before) {
                 if result == s.after {
                     // Push the instruction code into the guess hashmap for this opcode
-                    opcode_guesses.entry(oc).or_insert(Vec::new()).push(s.instruction[0]);
+                    opcode_guesses
+                        .entry(oc)
+                        .or_insert(Vec::new())
+                        .push(s.instruction[0]);
                 }
             }
         }
     }
-    
+
     // Using the above guesses, resolve the opcode id to an opcode operation
     //
     let mut opcode_lookup: HashMap<usize, &Opcode> = HashMap::new();
@@ -182,47 +185,51 @@ pub fn part2(input: &str) -> usize {
             // Once we've resolved all the opcodes stop guessing
             break;
         }
-        
+
         let mut to_remove: Option<(&Opcode, usize)> = None;
         for (op, guesses) in opcode_guesses.iter() {
             if is_all_same(guesses) {
                 // Add guess to lookup
                 opcode_lookup.insert(guesses[0], op);
-                    
-                // Remove guess from all other entries  
-                to_remove = Some((op, guesses[0]));    
+
+                // Remove guess from all other entries
+                to_remove = Some((op, guesses[0]));
                 break;
             }
         }
 
         if let Some((op, remove_guess)) = to_remove {
             opcode_guesses.remove(op); // Remove opcode from the list to guess
-            
+
             // And remove the opcode id from all the other guesses
-            opcode_guesses = opcode_guesses.iter()
-                .map(|(&k, v)| (k, v
-                    .iter()
-                    .filter(|&&g| g != remove_guess)
-                    .map(|&g| g)
-                    .collect::<Vec<usize>>()
-                ))
+            opcode_guesses = opcode_guesses
+                .iter()
+                .map(|(&k, v)| {
+                    (
+                        k,
+                        v.iter()
+                            .filter(|&&g| g != remove_guess)
+                            .copied()
+                            .collect::<Vec<usize>>(),
+                    )
+                })
                 .collect();
         } else {
             panic!("Out of guesses");
         }
     }
-    
+
     // Using the new knowledge of the opcode ids, lets
     // evaluate the test program
     //
     let mut registers = vec![0, 0, 0, 0];
     for instruction in test_program {
         let oc = opcode_lookup.get(&instruction[0]).unwrap();
-        if let Some(result) = oc.op(&instruction, &registers){
+        if let Some(result) = oc.op(&instruction, &registers) {
             registers = result;
         }
     }
-    
+
     registers[0]
 }
 
@@ -254,15 +261,15 @@ mod tests {
     fn sample1() {
         assert_eq!(part1(&input_samples(TEST_STR)), 2);
     }
-    
+
     #[test]
     fn unique_vectors() {
-        assert!(is_all_same(&vec![1, 1, 1, 1, 1]));
-        assert!(!is_all_same(&vec![1, 1, 1, 1, 2]));
+        assert!(is_all_same(&[1, 1, 1, 1, 1]));
+        assert!(!is_all_same(&[1, 1, 1, 1, 2]));
     }
 
     #[test]
-    fn operations(){
+    fn operations() {
         let base = vec![3, 2, 2, 1];
         let ins = vec![9, 2, 1, 0];
 

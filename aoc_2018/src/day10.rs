@@ -220,5 +220,4 @@ mod tests {
 
         assert_eq!(NightSky::new(TEST_STR), NightSky { lights, time: 0 });
     }
-
 }

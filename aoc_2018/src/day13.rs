@@ -236,7 +236,7 @@ impl fmt::Display for Mine {
                     write!(f, "{}", self.map[x][y])?
                 }
             }
-            writeln!(f, "")?
+            writeln!(f)?
         }
 
         Ok(())

@@ -21,7 +21,7 @@ pub struct GuardEvent {
 #[aoc_generator(day4)]
 pub fn input_schedule(input: &str) -> Vec<GuardEvent> {
     let mut collected: Vec<&str> = input.lines().collect();
-    collected.sort(); //Ensure that the guard patterns are in order
+    collected.sort_unstable(); //Ensure that the guard patterns are in order
 
     let schedule = Regex::new(r"^\[(.+)\] (.+)$").unwrap();
     let guard = Regex::new(r"^Guard #(\d+) begins shift$").unwrap();
