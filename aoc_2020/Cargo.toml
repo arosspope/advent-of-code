@@ -1,0 +1,20 @@
+[package]
+name = "aoc_2020"
+version = "0.0.1"
+authors = ["arosspope <andrew.pope456@gmail.com>"]
+edition = "2018"
+license = "MIT/Apache-2.0"
+readme = "README.md"
+keywords = ["advent-of-code", "problem-solving"]
+repository = "https://github.com/arosspope/advent-of-code.git"
+description = "Solutions (in rust) to advent of code."
+autobins = false
+
+[dependencies]
+aoc-runner = "^0.2"
+aoc-runner-derive = "^0.2"
+regex = "1"
+chrono = "^0.4"
+time = "^0.1"
+itertools = "^0.8"
+log = "^0.4"
