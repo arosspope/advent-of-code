@@ -286,7 +286,7 @@ impl Cavern {
             .units
             .iter()
             .filter(|(_, v)| !v.is_dead())
-            .map(|(k, _)| k.clone())
+            .map(|(k, _)| *k)
             .collect();
         process.sort_by_key(|k| self.units[k].pos);
 
@@ -336,7 +336,7 @@ impl fmt::Display for Cavern {
                     write!(f, "{}", self.map[x][y])?
                 }
             }
-            writeln!(f, "")?
+            writeln!(f)?
         }
 
         Ok(())
