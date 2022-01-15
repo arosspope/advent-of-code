@@ -1,5 +1,6 @@
 //Day 2: Password Philosophy
 //
+
 #[derive(Debug, PartialEq)]
 pub struct PasswordPolicy {
     character: char,
@@ -44,10 +45,26 @@ pub fn part1(input: &[PasswordEntry]) -> isize {
 
 #[aoc(day2, part2)]
 pub fn part2(input: &[PasswordEntry]) -> isize {
-    -1
+    let mut valid = 0;
+
+    for entry in input.iter() {
+        let pos0_matches = entry.password.chars().nth(entry.policy.min - 1).unwrap() == entry.policy.character;
+        let pos1_matches = entry.password.chars().nth(entry.policy.max - 1).unwrap() == entry.policy.character;
+
+        if pos0_matches ^ pos1_matches {
+            valid += 1;
+        }
+    }
+
+    valid
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{part1, part2};
+    use super::{part1, part2, input_passwords};
+
+    #[test]
+    fn sample2() {
+        assert_eq!(part2(&input_passwords(&"1-3 a: abcde\n1-3 b: cdefg\n2-9 c: ccccccccc")), 1)
+    }
 }
